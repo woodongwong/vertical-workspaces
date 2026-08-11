@@ -2,6 +2,7 @@
 ### v50.8 (2026-08-??)
 **Fixed**
 - Removed gaps between workspaces during the workspace switcher animation ([#323](https://github.com/G-dH/vertical-workspaces/issues/323))
+- Error that occurred when a Dash icon popup menu called a function that had been removed from Shell in v50
 
 
 ### v50.7 (2026-08-03)
