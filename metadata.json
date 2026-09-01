@@ -8,7 +8,8 @@
     "47",
     "48",
     "49",
-    "50"
+    "50",
+    "51"
   ],
   "session-modes": [
     "user",
@@ -20,6 +21,6 @@
   },
   "gettext-domain": "vertical-workspaces",
   "settings-schema": "org.gnome.shell.extensions.vertical-workspaces",
-  "version-name": "50.8"
+  "version-name": "51.0"
 }
 

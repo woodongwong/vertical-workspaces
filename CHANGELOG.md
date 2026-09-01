@@ -1,4 +1,9 @@
 ## Changelog:
+### v51.0 (not yet released)
+**Added:**
+- Support for GNOME 51
+
+
 ### v50.8 (2026-08-18)
 **Fixed**
 - Removed gaps between workspaces during the workspace switcher animation ([#323](https://github.com/G-dH/vertical-workspaces/issues/323))
