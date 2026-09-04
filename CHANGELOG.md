@@ -1,5 +1,5 @@
 ## Changelog:
-### v51.0 (not yet released)
+### v51.0 (2026-09-04)
 **Added:**
 - Support for GNOME 51
 
