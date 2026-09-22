@@ -344,6 +344,16 @@ export default class VShell extends Extension.Extension {
         if (!this._showingOverviewConId)
             this._showingOverviewConId = Main.overview.connect('showing', this._onShowingOverview.bind(this));
 
+        if (!this._monitorsChangedConId) {
+            this._monitorManager = global.backend.get_monitor_manager?.() ?? Meta.MonitorManager.get();
+            this._monitorsChangedConId = this._monitorManager.connect('monitors-changed', () => {
+                // Dash to Dock rebuilds its dash after monitor changes. Repair
+                // V-Shell after the monitor configuration has settled instead
+                // of waiting for the next overview animation to start.
+                this._scheduleDashToDockRepair();
+            });
+        }
+
         if (!this._sessionModeConId) {
             // the panel must be visible when screen is locked
             this._sessionModeConId = Main.sessionMode.connect('updated', session => {
@@ -358,6 +368,8 @@ export default class VShell extends Extension.Extension {
                             return GLib.SOURCE_REMOVE;
                         }
                     );
+                    if (session.currentMode === 'user')
+                        this._scheduleDashToDockRepair();
                 } else if (session.currentMode === 'unlock-dialog') {
                     Me.Modules.panelModule.update();
                     Main.layoutManager.panelBox.translation_y = 0;
@@ -447,6 +459,12 @@ export default class VShell extends Extension.Extension {
             this._watchDockSigId = 0;
         }
 
+        if (this._monitorsChangedConId) {
+            this._monitorManager.disconnect(this._monitorsChangedConId);
+            this._monitorsChangedConId = 0;
+            this._monitorManager = null;
+        }
+
         if (this._newWindowCreatedConId) {
             global.display.disconnect(this._newWindowCreatedConId);
             this._newWindowCreatedConId = 0;
@@ -508,6 +526,25 @@ export default class VShell extends Extension.Extension {
             if (this._prevDash !== dash._workId)
                 this._adaptToSystemChange(0);
         }
+    }
+
+    _scheduleDashToDockRepair(timeout = 500) {
+        if (!this._watchDashToDock || !this._enabled)
+            return;
+
+        if (Me.run.timeouts.dashToDockRepair)
+            GLib.source_remove(Me.run.timeouts.dashToDockRepair);
+
+        Me.run.timeouts.dashToDockRepair = GLib.timeout_add(
+            GLib.PRIORITY_DEFAULT,
+            timeout,
+            () => {
+                Me.run.timeouts.dashToDockRepair = 0;
+                if (this._enabled && this._prevDash !== Main.overview.dash._workId)
+                    this._adaptToSystemChange(0);
+                return GLib.SOURCE_REMOVE;
+            }
+        );
     }
 
     _adaptToSystemChange(timeout = 200, full = false) {
